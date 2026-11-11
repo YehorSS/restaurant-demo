@@ -4,7 +4,8 @@
   "workspaces": [
     "shared",
     "api",
-    "admin"
+    "admin",
+    "sites"
   ],
   "scripts": {
     "test": "npm test --workspaces --if-present",
