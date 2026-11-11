@@ -52,3 +52,11 @@ describe('api client', () => {
     expect(await createApi('')('/api/x', { method: 'DELETE' })).toBeNull();
   });
 });
+
+import { parsePrice } from '../src/grid';
+
+describe('parsePrice', () => {
+  it('ignores an emptied field', () => expect(parsePrice('  ')).toBeNull());
+  it('reads units into cents', () => expect(parsePrice('12.5')).toBe(1250));
+  it('rejects negatives and junk', () => { expect(parsePrice('-1')).toBeNull(); expect(parsePrice('abc')).toBeNull(); });
+});

@@ -66,3 +66,19 @@ describe('login', () => {
     expect((await me(cookie)).status).toBe(401);
   });
 });
+
+describe('review fixes', () => {
+  it('holds the lockout under parallel attempts', async () => {
+    const ip = '10.1.8.8';
+    const res = await Promise.all(Array.from({ length: 12 }, () => login({ login: 'demo', password: 'bad' }, ip)));
+    expect(res.filter(r => r.status === 401).length).toBeLessThanOrEqual(5);
+  });
+
+  it('follows the current owner secret, not the first stored hash', async () => {
+    await login({ login: 'owner', password: 'owner-test-pass' });
+    const old = await hashPassword('old-leaked');
+    await env.DB.prepare("UPDATE users SET hash = ?, salt = ? WHERE login = 'owner'").bind(old.hash, old.salt).run();
+    expect((await login({ login: 'owner', password: 'old-leaked' })).status).toBe(401);
+    expect((await login({ login: 'owner', password: 'owner-test-pass' })).status).toBe(200);
+  });
+});

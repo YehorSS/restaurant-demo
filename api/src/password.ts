@@ -14,6 +14,16 @@ export async function hashPassword(password: string, saltHex?: string): Promise<
   return { hash: await derive(password, salt), salt: hex(salt) };
 }
 
+/** Constant-time equality of two secrets (compares their SHA-256 digests). */
+export async function sameSecret(a: string, b: string): Promise<boolean> {
+  const enc = new TextEncoder();
+  const [x, y] = await Promise.all([crypto.subtle.digest('SHA-256', enc.encode(a)), crypto.subtle.digest('SHA-256', enc.encode(b))]);
+  const u = new Uint8Array(x), v = new Uint8Array(y);
+  let diff = 0;
+  for (let i = 0; i < u.length; i++) diff |= u[i] ^ v[i];
+  return diff === 0;
+}
+
 export async function verifyPassword(password: string, hash: string, saltHex: string): Promise<boolean> {
   const got = await derive(password, unhex(saltHex));
   // constant-time compare

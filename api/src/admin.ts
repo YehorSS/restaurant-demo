@@ -54,9 +54,12 @@ admin.get('/r/:rid/bookings', async c => {
     args.push(q.toUpperCase(), `%${q}%`, ...(d.length >= 3 ? [`%${d}%`] : []));
   }
   if (status && (STATUSES as readonly string[]).includes(status)) { where.push('status = ?'); args.push(status); }
+  const browsing = !q && !validDate(from) && !validDate(to);
+  // without a search or range, staff want today onwards, soonest first
+  if (browsing) { where.push('start_utc >= ?'); args.push(localToUtc(utcToLocal(Date.now(), r.tz).date, '00:00', r.tz)); }
   if (validDate(from)) { where.push('start_utc >= ?'); args.push(localToUtc(from, '00:00', r.tz)); }
   if (validDate(to)) { where.push('start_utc < ?'); args.push(localToUtc(to, '00:00', r.tz) + 86_400_000); }
-  const rows = await c.env.DB.prepare(`SELECT * FROM bookings WHERE ${where.join(' AND ')} ORDER BY start_utc DESC LIMIT 200`).bind(...args).all();
+  const rows = await c.env.DB.prepare(`SELECT * FROM bookings WHERE ${where.join(' AND ')} ORDER BY start_utc ${browsing ? 'ASC' : 'DESC'} LIMIT 200`).bind(...args).all();
   return c.json({ bookings: (rows.results as any[]).map(b => view(b, r.tz)) });
 });
 
@@ -88,6 +91,8 @@ admin.patch('/bookings/:id', async c => {
   const body = await c.req.json<{ status?: unknown; table_id?: unknown }>().catch(() => ({} as { status?: unknown; table_id?: unknown }));
   const row = await c.env.DB.prepare('SELECT b.*, r.tz FROM bookings b JOIN restaurants r ON r.id = b.rid WHERE b.id = ?').bind(id).first<any>();
   if (!row) return fail(c, 404, 'not_found', 'Booking not found');
+  // owner bookings survive the nightly reset, so the public demo account must not touch them
+  if (c.get('user').role === 'demo' && row.source === 'admin') return fail(c, 403, 'forbidden', 'The demo account cannot change bookings made by the owner');
   const status = body.status === undefined ? row.status : body.status;
   if (typeof status !== 'string' || !(STATUSES as readonly string[]).includes(status)) return fail(c, 400, 'invalid', `status must be one of ${STATUSES.join(', ')}`);
   const tableId = body.table_id === undefined ? row.table_id : Number(body.table_id);

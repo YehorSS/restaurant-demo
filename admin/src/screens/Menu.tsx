@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Dish, Section } from '../../../shared/api';
 import { money, useApp } from '../ctx';
+import { parsePrice } from '../grid';
 
 function DishRow({ dish }: { dish: Dish }) {
   const { api, t, user, rid, lang } = useApp();
@@ -37,7 +38,7 @@ function DishRow({ dish }: { dish: Dish }) {
       </div>
       <label className="price">{t('menu.price')}
         <input type="number" min={0} step={rid === 'lucciola' ? 0.5 : 5} defaultValue={priceUnits}
-          onBlur={e => { const c = Math.round(Number(e.target.value) * 100); if (Number.isFinite(c) && c >= 0 && c !== d.price_cents) save({ price_cents: c }); }} />
+          onBlur={e => { const c = parsePrice(e.target.value); if (c === null) e.target.value = String(d.price_cents / 100); else if (c !== d.price_cents) save({ price_cents: c }); }} />
         <span className="muted">{money(d.price_cents, rid)}</span>
       </label>
       <label className="switch">

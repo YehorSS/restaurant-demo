@@ -96,3 +96,25 @@ describe('menu and closed days by role', () => {
     expect((await req(`/api/admin/r/zhar/closed-days/${d}`, owner, { method: 'DELETE' })).status).toBe(204);
   });
 });
+
+describe('review fixes', () => {
+  it('stops demo from changing owner bookings', async () => {
+    const made = await (await manual(owner, { date: day(10), time: '13:00', name: 'Owner Real' })).json() as any;
+    const r = await req(`/api/admin/bookings/${made.id}`, demo, { method: 'PATCH', body: JSON.stringify({ status: 'cancelled' }) });
+    expect(r.status).toBe(403);
+    expect((await req(`/api/admin/bookings/${made.id}`, owner, { method: 'PATCH', body: JSON.stringify({ status: 'confirmed' }) })).status).toBe(200);
+  });
+
+  it('lists today first even when later days hold more than 200 bookings', async () => {
+    const today = day(0);
+    const made = await (await manual(owner, { date: today, time: '23:00', name: 'Today Guest', table_id: (await env.DB.prepare("SELECT id FROM tables WHERE rid='zhar' AND seats=2 LIMIT 1").first<{ id: number }>())!.id })).json() as any;
+    expect(made.code).toBeTruthy();
+    const base = Date.now() + 40 * 86_400_000;
+    const stmts = Array.from({ length: 260 }, (_, i) => env.DB.prepare(
+      "INSERT INTO bookings (rid, code, table_id, start_utc, end_utc, party, name, phone, status, source, created_at) VALUES ('zhar', ?, 1, ?, ?, 2, 'Later', '+380000000000', 'confirmed', 'demo', 0)",
+    ).bind(`ZH-L${i}`, base + i * 7_200_000, base + i * 7_200_000 + 7_200_000));
+    await env.DB.batch(stmts);
+    const list = await (await req('/api/admin/r/zhar/bookings', owner)).json() as any;
+    expect(list.bookings.some((b: any) => b.code === made.code)).toBe(true);
+  });
+});

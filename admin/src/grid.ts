@@ -5,6 +5,13 @@ const VISIT = 120;
 const toMin = (t: string) => +t.slice(0, 2) * 60 + +t.slice(3, 5);
 export const fmt = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 
+/** Price field text to cents; null for an empty, negative or unreadable value. */
+export function parsePrice(text: string): number | null {
+  if (!text.trim()) return null;
+  const n = Number(text.replace(',', '.'));
+  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : null;
+}
+
 /** First and last minute shown on the day grid; a closed day shows 12:00-23:00. */
 export function gridRange(hours: Hours[]): { from: number; to: number } {
   if (!hours.length) return { from: 720, to: 1380 };
