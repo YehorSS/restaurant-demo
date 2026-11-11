@@ -3,10 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev:lucciola": "vite sites/lucciola --config lucciola/vite.config.ts",
+    "dev:lucciola": "vite --config lucciola/vite.config.ts",
+    "build:lucciola": "vite build --config lucciola/vite.config.ts",
+    "preview:lucciola": "vite preview --config lucciola/vite.config.ts",
+    "build": "tsc --noEmit && npm run build:lucciola",
     "test": "vitest run"
   },
   "devDependencies": {
+    "@types/node": "^22.20.5",
     "jsdom": "^25.0.1",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3",
