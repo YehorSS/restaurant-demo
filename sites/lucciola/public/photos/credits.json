@@ -1,0 +1,38 @@
+{
+  "hero": {
+    "title": "Trattoria Da Antonio, Warsaw Ochota 05.jpg",
+    "author": "Kgbo",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Trattoria_Da_Antonio,_Warsaw_Ochota_05.jpg"
+  },
+  "antipasti": {
+    "title": "Antipasto Misto Con Bruschette.jpg",
+    "author": "Unknown",
+    "license": "CC BY 2.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Antipasto_Misto_Con_Bruschette.jpg"
+  },
+  "primi": {
+    "title": "Spaghetti alle vongole.jpg",
+    "author": "Flickr user: [2], retouched by AM",
+    "license": "CC BY 2.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Spaghetti_alle_vongole.jpg"
+  },
+  "secondi": {
+    "title": "Foto brodetto .jpg",
+    "author": "Beabrun",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Foto_brodetto_.jpg"
+  },
+  "dolci": {
+    "title": "Tiramisu - Raffaele Diomede.jpg",
+    "author": "Raffaele Diomede from Pordenone, ITALIA",
+    "license": "CC BY 2.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Tiramisu_-_Raffaele_Diomede.jpg"
+  },
+  "ancona": {
+    "title": "Ancona port.jpg",
+    "author": "Superchilum",
+    "license": "CC BY-SA 4.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Ancona_port.jpg"
+  }
+}
