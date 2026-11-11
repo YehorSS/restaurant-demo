@@ -1,0 +1,8 @@
+{
+  "name": "restaurant-demo",
+  "private": true,
+  "workspaces": ["shared", "api", "admin"],
+  "scripts": {
+    "test": "npm test --workspaces --if-present"
+  }
+}
