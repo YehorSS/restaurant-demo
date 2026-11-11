@@ -5,12 +5,6 @@
     "license": "CC BY-SA 4.0",
     "url": "https://commons.wikimedia.org/wiki/File:Trattoria_Da_Antonio,_Warsaw_Ochota_05.jpg"
   },
-  "antipasti": {
-    "title": "Antipasto Misto Con Bruschette.jpg",
-    "author": "Unknown",
-    "license": "CC BY 2.0",
-    "url": "https://commons.wikimedia.org/wiki/File:Antipasto_Misto_Con_Bruschette.jpg"
-  },
   "primi": {
     "title": "Spaghetti alle vongole.jpg",
     "author": "Flickr user: [2], retouched by AM",
@@ -34,5 +28,11 @@
     "author": "Superchilum",
     "license": "CC BY-SA 4.0",
     "url": "https://commons.wikimedia.org/wiki/File:Ancona_port.jpg"
+  },
+  "antipasti": {
+    "title": "Crostini al pomodoro.jpg",
+    "author": "Marieke Kuijjer from Leiden, The Netherlands",
+    "license": "CC BY-SA 2.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Crostini_al_pomodoro.jpg"
   }
 }

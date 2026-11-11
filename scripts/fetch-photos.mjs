@@ -28,7 +28,7 @@ for (const [key, title] of Object.entries(picks)) {
   if (credits[key]?.title === title.replace(/^File:/, '') && existsSync(`${dir}/${key}.webp`)) continue;
   await sleep(1500);
   const u = new URL('https://commons.wikimedia.org/w/api.php');
-  Object.entries({ action: 'query', titles: title, prop: 'imageinfo', iiprop: 'url|extmetadata', iiextmetadatafilter: 'LicenseShortName|Artist', iiurlwidth: '1600', format: 'json' }).forEach(([k, v]) => u.searchParams.set(k, v));
+  Object.entries({ action: 'query', titles: title, prop: 'imageinfo', iiprop: 'url|extmetadata', iiextmetadatafilter: 'LicenseShortName|Artist|Credit', iiurlwidth: '1600', format: 'json' }).forEach(([k, v]) => u.searchParams.set(k, v));
   const page = Object.values((await get(u, 'json')).query.pages)[0];
   const ii = page.imageinfo[0];
   const src = await get(ii.thumburl, 'buf');
@@ -38,7 +38,7 @@ for (const [key, title] of Object.entries(picks)) {
     quality -= 8;
   } while (out.length > MAX && quality > 30);
   writeFileSync(`${dir}/${key}.webp`, out);
-  credits[key] = { title: title.replace(/^File:/, ''), author: strip(ii.extmetadata.Artist?.value) || 'Unknown', license: ii.extmetadata.LicenseShortName.value, url: ii.descriptionurl };
+  credits[key] = { title: title.replace(/^File:/, ''), author: strip(ii.extmetadata.Artist?.value) || strip(ii.extmetadata.Credit?.value) || 'Unknown', license: ii.extmetadata.LicenseShortName.value, url: ii.descriptionurl };
   console.log(key, Math.round(out.length / 1024), 'KB', credits[key].license);
   writeFileSync(creditsFile, JSON.stringify(credits, null, 2) + '\n');
 }

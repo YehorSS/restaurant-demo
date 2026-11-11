@@ -14,6 +14,7 @@ for (const site of ['lucciola']) {
         expect(existsSync(file), file).toBe(true);
         expect(statSync(file).size).toBeLessThanOrEqual(200 * 1024);
         expect(credits[key]?.author).toBeTruthy();
+        expect(credits[key]?.author).not.toBe('Unknown');
         expect(credits[key]?.license).toMatch(LICENSES);
         expect(credits[key]?.url).toMatch(/^https:\/\/commons\.wikimedia\.org\//);
       });
