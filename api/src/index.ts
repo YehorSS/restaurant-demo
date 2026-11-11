@@ -10,6 +10,7 @@ export const app = new Hono<{ Bindings: Env }>();
 
 app.use('/api/*', corsGuard);
 app.get('/api/health', c => c.json({ ok: true }));
+app.get('/', c => c.redirect('/admin/', 302));
 app.route('/api', pub);
 app.route('/api/auth', auth);
 app.route('/api/admin', admin);

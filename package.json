@@ -1,8 +1,15 @@
 {
   "name": "restaurant-demo",
   "private": true,
-  "workspaces": ["shared", "api", "admin"],
+  "workspaces": [
+    "shared",
+    "api",
+    "admin"
+  ],
   "scripts": {
     "test": "npm test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
   }
 }
