@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import type { Env } from './seed';
+import { seed, type Env } from './seed';
+import { resetDemo } from './demo';
 import { requireRole, type AuthVars } from './auth';
 import { checkGuest, fail, TIME_RE, validDate } from './guard';
 import { localToUtc, MAX_PARTY, utcToLocal } from './slots';
@@ -13,6 +14,11 @@ const INACTIVE = new Set(['cancelled', 'no_show']);
 const TEXT_FIELDS = ['name_en', 'name_local', 'desc_en', 'desc_local'] as const;
 
 admin.use('*', requireRole('owner', 'demo'));
+
+admin.post('/reset', requireRole('owner'), async c => {
+  await seed(c.env.DB);
+  return c.json(await resetDemo(c.env.DB, Date.now(), Math.random));
+});
 
 admin.use('/r/:rid/*', async (c, next) => {
   const r = await getRestaurant(c.env.DB, c.req.param('rid'));
@@ -71,7 +77,7 @@ admin.post('/r/:rid/bookings', async c => {
   } else if (party > MAX_PARTY) {
     return fail(c, 400, 'invalid', 'Pick a table for parties over 8');
   }
-  const made = await insertBooking(c.env.DB, r, { date, time, party, ...guest, source: 'admin', status: 'confirmed' }, candidates);
+  const made = await insertBooking(c.env.DB, r, { date, time, party, ...guest, source: c.get('user').role === 'owner' ? 'admin' : 'demo', status: 'confirmed' }, candidates);
   if (!made) return fail(c, 409, 'slot_taken', 'No free table at this time');
   const row = await c.env.DB.prepare('SELECT * FROM bookings WHERE code = ?').bind(made.code).first();
   return c.json(view(row, r.tz), 201);

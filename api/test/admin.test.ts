@@ -33,7 +33,7 @@ describe('day view and bookings', () => {
     const r = await (await req(`/api/admin/r/zhar/day?date=${d}`, demo)).json() as any;
     expect(r.tables).toHaveLength(18);
     const b = r.bookings.find((x: any) => x.name === 'Ivan Petrenko');
-    expect(b).toMatchObject({ start: '19:00', end: '21:00', status: 'confirmed', source: 'admin' });
+    expect(b).toMatchObject({ start: '19:00', end: '21:00', status: 'confirmed', source: 'demo' });
   });
 
   it('puts a manual booking on the chosen table and refuses a taken one', async () => {
