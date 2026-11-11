@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { initial, reduce, type State } from '../lucciola/src/booking';
+import { initial, reduce, type State } from '../../shared/booking-model';
 
 const slots = [{ time: '19:00', available: true }, { time: '19:30', available: false }];
 const ready = (): State => {
