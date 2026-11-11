@@ -3,7 +3,7 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   "d1_databases": [
-    { "binding": "DB", "database_name": "restaurant-demo", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+    { "binding": "DB", "database_name": "restaurant-demo", "database_id": "22ec99a7-3c1b-4e55-9dde-1002748844fe", "migrations_dir": "migrations" }
   ],
   "assets": { "directory": "../admin/dist", "binding": "ASSETS", "not_found_handling": "none", "run_worker_first": ["/api/*", "/"] },
   "triggers": { "crons": ["0 3 * * *"] }

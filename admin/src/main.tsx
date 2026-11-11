@@ -17,6 +17,16 @@ const SCREENS: Screen[] = ['day', 'list', 'new', 'menu', 'closed'];
 const read = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
 const write = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* storage blocked */ } };
 
+// short status line for one-off actions; the viewer has no alert dialogs worth relying on
+function alertText(text: string) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.setAttribute('role', 'status');
+  el.textContent = text;
+  document.body.append(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
 function fromHash(): Screen {
   const h = location.hash.replace('#', '') as Screen;
   return SCREENS.includes(h) ? h : 'day';
@@ -49,6 +59,10 @@ function App() {
   if (user === undefined) return <div className="boot" aria-busy="true" />;
   if (user === null) return <Login api={api} t={t} onIn={setUser} lang={lang} onLang={switchLang} />;
 
+  const resetDemo = async () => {
+    try { await api('/api/admin/reset', { method: 'POST' }); alertText(t('reset.done')); location.reload(); }
+    catch { alertText(t('err.generic')); }
+  };
   const logout = async () => { await api('/api/auth/logout', { method: 'POST' }).catch(() => {}); setUser(null); };
   const NAV: Record<Screen, Key> = { day: 'nav.day', list: 'nav.list', new: 'nav.new', menu: 'nav.menu', closed: 'nav.closed' };
 
@@ -65,6 +79,7 @@ function App() {
           {SCREENS.map(s => <a key={s} href={`#${s}`} aria-current={s === screen ? 'page' : undefined}>{t(NAV[s])}</a>)}
         </nav>
         <div className="tools">
+          {user.role === 'owner' && <button className="ghost" onClick={resetDemo}>{t('reset.btn')}</button>}
           <button className="ghost" onClick={switchLang}>{t('lang')}</button>
           <button className="ghost" onClick={logout}>{t('nav.logout')}</button>
         </div>

@@ -69,6 +69,8 @@ const en = {
   'closed.none': 'No days off planned',
   'closed.ownerOnly': 'Only the owner can plan days off.',
   'err.generic': 'Something went wrong. Try again.',
+  'reset.btn': 'Reset demo data',
+  'reset.done': 'Demo data restored',
   'lang': 'UA',
 };
 
@@ -141,6 +143,8 @@ const uk: typeof en = {
   'closed.none': 'Вихідних не заплановано',
   'closed.ownerOnly': 'Вихідні може планувати лише власник.',
   'err.generic': 'Щось пішло не так. Спробуйте ще раз.',
+  'reset.btn': 'Скинути демо-дані',
+  'reset.done': 'Демо-дані відновлено',
   'lang': 'EN',
 };
 
