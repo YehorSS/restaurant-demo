@@ -1,18 +1,21 @@
 // Books a table through the Lucciola site (local preview, live API), checks the booking
 // is visible in the admin API as demo, then cancels it from the site.
 import { chromium } from '@playwright/test';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+
+// on Windows a shell-spawned server survives kill(); take down the whole process tree
+const killTree = child => { if (process.platform === 'win32') spawnSync('taskkill', ['/pid', String(child.pid), '/T', '/F']); else child.kill(); };
 
 const API = 'https://restaurant-demo.yehorss.workers.dev';
 const SITES = {
   lucciola: { port: 5173, key: 'lucciola-lang', last: 'lucciola-last', lang: 'en', open: null, day: '.bk-day', time: '.bk-time', name: '#bk-name', phone: '#bk-phone', send: '.bk-form .btn', code: '.bk-code strong', cancel: '#bk-cancel', anchor: '#prenota' },
-  zhar: { port: 5174, key: 'zhar-lang', last: 'zhar-last', lang: 'uk', open: '#fab', day: '.zh-day', time: '.zh-time', name: '#zh-name', phone: '#zh-phone', send: '.zh-form .zh-btn', code: '.zh-code strong', cancel: '#zh-cancel', anchor: '' },
+  zhar: { port: 5174, key: 'zhar-lang', last: 'zhar-last', lang: 'uk', open: '.hero .btn', day: '.zh-day', time: '.zh-time', name: '#zh-name', phone: '#zh-phone', send: '.zh-form .zh-btn', code: '.zh-code strong', cancel: '#zh-cancel', anchor: '' },
 };
 const site = process.argv[2] ?? 'lucciola';
 const S = SITES[site];
 if (!S) { console.error(`unknown site ${site}`); process.exit(1); }
 const srv = spawn(`npm run preview:${site} -w sites`, { shell: true, stdio: 'ignore' });
-const fail = msg => { console.error('E2E FAIL:', msg); srv.kill(); process.exit(1); };
+const fail = msg => { console.error('E2E FAIL:', msg); killTree(srv); process.exit(1); };
 await new Promise(r => setTimeout(r, 3500));
 const b = await chromium.launch();
 try {
@@ -44,6 +47,6 @@ try {
   if (after.bookings?.[0]?.status !== 'cancelled') fail('cancel did not reach the admin');
   console.log('cancelled from the site: ok');
 } finally {
-  await b.close(); srv.kill();
+  await b.close(); killTree(srv);
 }
 process.exit(0);

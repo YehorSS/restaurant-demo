@@ -1,7 +1,10 @@
 // Screenshots each built site at 1440 and 390 px in both languages (live API) and fails
 // on horizontal scroll or clipped dish names.
 import { chromium } from '@playwright/test';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+
+// on Windows a shell-spawned server survives kill(); take down the whole process tree
+const killTree = child => { if (process.platform === 'win32') spawnSync('taskkill', ['/pid', String(child.pid), '/T', '/F']); else child.kill(); };
 import { mkdirSync } from 'node:fs';
 
 const SITES = [
@@ -30,7 +33,7 @@ for (const s of SITES) {
     bad.forEach(x => problems.push(`${s.id} ${w} ${lang}: ${x}`));
     await p.close();
   }
-  srv.kill();
+  killTree(srv);
 }
 await b.close();
 if (problems.length) { console.error(problems.join('\n')); process.exit(1); }

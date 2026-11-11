@@ -28,6 +28,8 @@ export function createPanel(api: SiteApi, info: Info, lang: Lang, phone: string,
   root.setAttribute('role', 'dialog');
   root.setAttribute('aria-modal', 'true');
   root.setAttribute('aria-labelledby', 'zh-panel-title');
+  root.tabIndex = -1;
+  let returnTo: HTMLElement | null = null;
   root.hidden = true;
   document.body.append(shade, root);
 
@@ -95,28 +97,28 @@ export function createPanel(api: SiteApi, info: Info, lang: Lang, phone: string,
     if (s.step === 'done' && s.made) {
       const d = label(s.made.date);
       return `<div class="zh-done" role="status">
-        <p class="zh-big">${t(lang, 'book.done')}</p>
-        <p>${d.wd}, ${d.n} ${d.m} · ${esc(s.made.time)} · ${s.made.party}</p>
+        <p class="zh-big" tabindex="-1">${t(lang, 'book.done')}</p>
+        <p>${d.wd}, ${d.n} ${d.m} · ${esc(s.made.time)} · ${s.made.party} ${t(lang, 'book.party').toLowerCase()}</p>
         <p class="zh-code"><span>${t(lang, 'book.code')}</span><strong>${esc(s.made.code)}</strong></p>
         ${s.error === 'error' ? `<p class="zh-err">${t(lang, 'book.error')} ${tel}</p>` : ''}
         <button type="button" class="zh-btn ghost" id="zh-cancel">${t(lang, 'book.cancel')}</button>
         <button type="button" class="zh-btn" id="zh-new">${t(lang, 'book.again')}</button>
       </div>`;
     }
-    if (s.step === 'cancelled') return `<div class="zh-done" role="status"><p class="zh-big">${t(lang, 'book.cancelled')}</p><button type="button" class="zh-btn" id="zh-new">${t(lang, 'book.again')}</button></div>`;
+    if (s.step === 'cancelled') return `<div class="zh-done" role="status"><p class="zh-big" tabindex="-1">${t(lang, 'book.cancelled')}</p><button type="button" class="zh-btn" id="zh-new">${t(lang, 'book.again')}</button></div>`;
 
     const slots = !s.date ? '' : s.party > MAX_PARTY ? `<p class="zh-note">${t(lang, 'book.big')} ${tel}</p>`
       : s.error === 'error' && !s.slots ? `<p class="zh-err" role="alert">${t(lang, 'book.error')} ${tel}</p>`
       : s.loading || !s.slots ? `<p class="zh-note">${t(lang, 'book.loading')}</p>`
       : !s.slots.some(x => x.available) ? `<p class="zh-note">${t(lang, 'book.none')}</p>`
-      : `<div class="zh-times">${s.slots.map(x => `<button type="button" class="zh-time" data-time="${esc(x.time)}" ${x.available ? '' : 'disabled'} aria-pressed="${x.time === s.time}">${esc(x.time)}</button>`).join('')}</div>`;
+      : `<div class="zh-times" role="group" aria-labelledby="zh-time-l">${s.slots.map(x => `<button type="button" class="zh-time" data-time="${esc(x.time)}" ${x.available ? '' : 'disabled'} aria-pressed="${x.time === s.time}">${esc(x.time)}</button>`).join('')}</div>`;
     const form = s.step === 'form' || s.step === 'sending';
     return `
-      <p class="zh-lbl">${t(lang, 'book.day')}</p>
-      <div class="zh-days">${days.map(d => { const l = label(d.date); return `<button type="button" class="zh-day" data-date="${d.date}" ${d.open ? '' : 'disabled'} aria-pressed="${d.date === s.date}"><span>${l.wd}</span><strong>${l.n}</strong><span>${d.open ? l.m : t(lang, 'book.closed')}</span></button>`; }).join('')}</div>
+      <p class="zh-lbl" id="zh-day-l">${t(lang, 'book.day')}</p>
+      <div class="zh-days" role="group" aria-labelledby="zh-day-l">${days.map(d => { const l = label(d.date); return `<button type="button" class="zh-day" data-date="${d.date}" ${d.open ? '' : 'disabled'} aria-pressed="${d.date === s.date}"><span>${l.wd}</span><strong>${l.n}</strong><span>${d.open ? l.m : t(lang, 'book.closed')}</span></button>`; }).join('')}</div>
       <p class="zh-lbl" id="zh-party-l">${t(lang, 'book.party')}</p>
       <div class="zh-party" role="group" aria-labelledby="zh-party-l">${Array.from({ length: 9 }, (_, i) => i + 1).map(n => `<button type="button" class="zh-n" id="zh-n${n}" data-n="${n}" aria-pressed="${n === s.party}">${n === 9 ? '9+' : n}</button>`).join('')}</div>
-      <p class="zh-lbl">${t(lang, 'book.time')}</p>
+      <p class="zh-lbl" id="zh-time-l">${t(lang, 'book.time')}</p>
       ${s.error === 'taken' ? `<p class="zh-err" role="alert">${t(lang, 'book.taken')}</p>` : ''}
       <div aria-live="polite">${slots}</div>
       ${form ? `<form class="zh-form" novalidate>
@@ -137,25 +139,29 @@ export function createPanel(api: SiteApi, info: Info, lang: Lang, phone: string,
   }
 
   function render(): void {
+    const inside = root.contains(document.activeElement) || document.activeElement === document.body && !root.hidden;
     const key = focusKey();
     root.innerHTML = `<div class="zh-panel-head"><h2 id="zh-panel-title">${t(lang, 'book.title')}</h2><button type="button" class="zh-x" id="zh-close" aria-label="${t(lang, 'book.close')}">×</button></div><div class="zh-panel-body">${body()}</div>`;
     root.querySelector('#zh-close')!.addEventListener('click', close);
     root.querySelector('#zh-cancel')?.addEventListener('click', cancel);
     root.querySelector('#zh-new')?.addEventListener('click', () => { dispatch({ type: 'forget' }); pickFirst(); });
-    root.querySelectorAll<HTMLButtonElement>('.zh-day').forEach(b => b.addEventListener('click', () => { dispatch({ type: 'date', date: b.dataset.date!, open: !b.disabled }); void loadSlots(); }));
-    root.querySelectorAll<HTMLButtonElement>('.zh-n').forEach(b => b.addEventListener('click', () => { dispatch({ type: 'party', party: Number(b.dataset.n) }); void loadSlots(); }));
+    root.querySelectorAll<HTMLButtonElement>('.zh-day').forEach(b => b.addEventListener('click', () => { autoTries = 0; dispatch({ type: 'date', date: b.dataset.date!, open: !b.disabled }); void loadSlots(); }));
+    root.querySelectorAll<HTMLButtonElement>('.zh-n').forEach(b => b.addEventListener('click', () => { autoTries = 0; dispatch({ type: 'party', party: Number(b.dataset.n) }); void loadSlots(); }));
     root.querySelectorAll<HTMLButtonElement>('.zh-time').forEach(b => b.addEventListener('click', () => { dispatch({ type: 'time', time: b.dataset.time! }); root.querySelector<HTMLInputElement>('#zh-name')?.focus(); }));
     for (const f of ['name', 'phone', 'comment'] as const)
       root.querySelector<HTMLInputElement>(`#zh-${f}`)?.addEventListener('input', e => { s = reduce(s, { type: 'guest', field: f, value: (e.target as HTMLInputElement).value }); });
     root.querySelector('form')?.addEventListener('submit', e => { e.preventDefault(); void send(); });
-    if (key) root.querySelector<HTMLElement>(key)?.focus();
+    const back = key ? root.querySelector<HTMLElement>(key) : null;
+    // the focused control may be gone (new booking, cancel, submit): keep focus inside the dialog
+    if (back) back.focus();
+    else if (inside && !root.hidden) (root.querySelector<HTMLElement>('.zh-big, .zh-day[aria-pressed="true"]') ?? root).focus();
   }
 
   function focusables(): HTMLElement[] {
     return [...root.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([tabindex="-1"]), textarea, a[href]')];
   }
 
-  root.addEventListener('keydown', e => {
+  const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Escape') { e.preventDefault(); close(); return; }
     if (e.key !== 'Tab') return;
     const f = focusables();
@@ -163,10 +169,13 @@ export function createPanel(api: SiteApi, info: Info, lang: Lang, phone: string,
     const first = f[0], last = f[f.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  });
+    else if (!root.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+  };
   shade.addEventListener('click', close);
 
   function open(): void {
+    returnTo = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : opener;
+    document.addEventListener('keydown', onKey);
     root.hidden = false;
     shade.hidden = false;
     document.body.classList.add('zh-locked');
@@ -178,7 +187,8 @@ export function createPanel(api: SiteApi, info: Info, lang: Lang, phone: string,
     root.hidden = true;
     shade.hidden = true;
     document.body.classList.remove('zh-locked');
-    opener.focus();
+    document.removeEventListener('keydown', onKey);
+    (returnTo ?? opener).focus();
   }
 
   return { open, close, setLang(l: Lang) { lang = l; if (!root.hidden) render(); } };
