@@ -37,7 +37,7 @@ h1, h2, h3 { font-family: var(--f-display); font-weight: 400; color: var(--cobal
 /* hero */
 .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 48px; align-items: center; padding: 56px max(16px, 4vw) 64px; max-width: 1280px; margin: 0 auto; }
 .kicker { text-transform: uppercase; letter-spacing: .22em; font-size: 13px; font-weight: 600; color: var(--cobalt); margin: 0 0 18px; }
-.hero h1 { position: relative; font-size: clamp(64px, 11vw, 168px); letter-spacing: -.01em; }
+.hero h1 { position: relative; font-size: clamp(56px, 8.6vw, 140px); letter-spacing: -.01em; }
 .sun { position: absolute; z-index: -1; width: .78em; height: .78em; border-radius: 50%; background: var(--lemon); left: -.12em; top: -.18em; }
 .hero-line { font-size: clamp(19px, 2vw, 23px); max-width: 30ch; margin: 22px 0 28px; }
 .hours { margin: 22px 0 0; font-size: 14px; color: var(--muted); }
