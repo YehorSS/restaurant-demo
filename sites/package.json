@@ -6,8 +6,11 @@
     "dev:lucciola": "vite --config lucciola/vite.config.ts",
     "build:lucciola": "vite build --config lucciola/vite.config.ts",
     "preview:lucciola": "vite preview --config lucciola/vite.config.ts",
-    "build": "tsc --noEmit && npm run build:lucciola",
-    "test": "vitest run"
+    "build": "tsc --noEmit && npm run build:lucciola && npm run build:zhar",
+    "test": "vitest run",
+    "dev:zhar": "vite --config zhar/vite.config.ts",
+    "build:zhar": "vite build --config zhar/vite.config.ts",
+    "preview:zhar": "vite preview --config zhar/vite.config.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

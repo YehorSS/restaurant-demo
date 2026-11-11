@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 const LICENSES = /^(CC0|CC BY(-SA)? [0-9.]+|Public domain)$/i;
 
-for (const site of ['lucciola']) {
+for (const site of ['lucciola', 'zhar']) {
   describe(`${site} photos`, () => {
     const picks: Record<string, string> = JSON.parse(readFileSync(`${site}/photos.json`, 'utf8'));
     const credits = existsSync(`${site}/public/photos/credits.json`) ? JSON.parse(readFileSync(`${site}/public/photos/credits.json`, 'utf8')) : {};

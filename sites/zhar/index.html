@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ЖАР — кухня на живому вогні, Поділ</title>
+  <meta name="description" content="Сучасна українська кухня на дубовому та вишневому вугіллі. Київ, Поділ. Бронювання столів онлайн.">
+  <meta name="theme-color" content="#14110f">
+  <meta property="og:title" content="ЖАР — кухня на живому вогні">
+  <meta property="og:image" content="https://yehorss.github.io/restaurant-demo/zhar/photos/hero.webp">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20'%3E%3Cpath fill='%23ff7a1a' d='M8 1c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4 2-7 2 1 3 3 3 5 1-2 1-6 1-9z'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap">
+</head>
+<body>
+  <a class="skip" href="#menu" data-i18n="nav.menu">Меню</a>
+  <header class="top">
+    <a class="logo" href="#top">ЖАР</a>
+    <nav aria-label="ЖАР">
+      <a href="#menu" data-i18n="nav.menu">Меню</a>
+      <a href="#story" data-i18n="nav.story">Про нас</a>
+      <a href="#visit" data-i18n="nav.visit">Як знайти</a>
+    </nav>
+    <button type="button" class="lang" id="lang" data-i18n="lang.switch">EN</button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <img class="hero-img" src="./photos/hero.webp" alt="" width="1200" height="800">
+      <div class="hero-in">
+        <p class="kicker" data-i18n="hero.kicker"></p>
+        <h1>ЖАР</h1>
+        <p class="hero-line" data-i18n="hero.line"></p>
+        <div class="hero-cta">
+          <button type="button" class="zh-btn big" data-open-booking data-i18n="hero.book">Забронювати стіл</button>
+          <a class="zh-btn ghost big" href="#menu" data-i18n="hero.menu">Подивитись меню</a>
+        </div>
+        <p class="hours" data-i18n="hero.hours"></p>
+      </div>
+    </section>
+
+    <section class="menu" id="menu">
+      <div class="menu-head">
+        <h2 data-i18n="menu.title">Меню</h2>
+        <p data-i18n="menu.lead"></p>
+        <nav class="menu-tabs" id="menu-tabs" aria-label="Меню"></nav>
+      </div>
+      <div id="menu-list" aria-busy="true"></div>
+    </section>
+
+    <section class="story" id="story">
+      <img src="./photos/about.webp" alt="" loading="lazy" width="1200" height="800">
+      <div>
+        <h2 data-i18n="story.title"></h2>
+        <p data-i18n="story.text"></p>
+        <dl class="facts">
+          <div><dt>140</dt><dd data-i18n="story.f1"></dd></div>
+          <div><dt>7</dt><dd data-i18n="story.f2"></dd></div>
+          <div><dt>66</dt><dd data-i18n="story.f3"></dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="visit" id="visit">
+      <h2 data-i18n="visit.title"></h2>
+      <p><strong data-i18n="visit.address"></strong><br><span data-i18n="visit.metro"></span></p>
+      <p><span data-i18n="hero.hours"></span><br><span data-i18n="visit.phone">Телефон</span>: <a href="tel:+380445550177">+380 44 555 0177</a></p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p class="demo"><span data-i18n="foot.demo"></span> <a href="https://restaurant-demo.yehorss.workers.dev/admin/" data-i18n="foot.admin"></a></p>
+    <div class="foot-row">
+      <span class="logo">ЖАР</span>
+      <a href="https://github.com/YehorSS/restaurant-demo" data-i18n="foot.code"></a>
+    </div>
+    <details class="credits"><summary data-i18n="foot.photos">Фото</summary><ul id="credits"></ul></details>
+  </footer>
+
+  <button type="button" class="fab" id="fab" data-open-booking><span class="fab-flame" aria-hidden="true"></span><span data-i18n="book.open">Забронювати стіл</span></button>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>

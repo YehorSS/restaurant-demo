@@ -11,7 +11,13 @@ const strip = s => (s ?? '').replace(/<[^>]+>/g, '').trim();
 async function search(q) {
   const u = new URL('https://commons.wikimedia.org/w/api.php');
   Object.entries({ action: 'query', generator: 'search', gsrsearch: `${q} filetype:bitmap`, gsrnamespace: '6', gsrlimit: '24', prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiextmetadatafilter: 'LicenseShortName|Artist', iiurlwidth: '480', format: 'json' }).forEach(([k, v]) => u.searchParams.set(k, v));
-  const r = await fetch(u, { headers: { 'user-agent': 'restaurant-demo-portfolio/1.0' } });
+  let r;
+  // Commons answers 429 with plain text when hurried; wait and retry
+  for (let i = 0; i < 6; i++) {
+    await new Promise(res => setTimeout(res, 1500 + i * 5000));
+    r = await fetch(u, { headers: { 'user-agent': 'restaurant-demo-portfolio/1.0' } });
+    if (r.ok) break;
+  }
   const pages = Object.values((await r.json()).query?.pages ?? {});
   return pages.map(p => {
     const ii = p.imageinfo[0], m = ii.extmetadata ?? {};
