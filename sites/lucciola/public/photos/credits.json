@@ -5,12 +5,6 @@
     "license": "CC BY-SA 4.0",
     "url": "https://commons.wikimedia.org/wiki/File:Trattoria_Da_Antonio,_Warsaw_Ochota_05.jpg"
   },
-  "primi": {
-    "title": "Spaghetti alle vongole.jpg",
-    "author": "Flickr user: [2], retouched by AM",
-    "license": "CC BY 2.0",
-    "url": "https://commons.wikimedia.org/wiki/File:Spaghetti_alle_vongole.jpg"
-  },
   "secondi": {
     "title": "Foto brodetto .jpg",
     "author": "Beabrun",
@@ -34,5 +28,11 @@
     "author": "Marieke Kuijjer from Leiden, The Netherlands",
     "license": "CC BY-SA 2.0",
     "url": "https://commons.wikimedia.org/wiki/File:Crostini_al_pomodoro.jpg"
+  },
+  "primi": {
+    "title": "Spaghetti alle vongole.jpg",
+    "author": "Flickr user: jaycross, retouched by AM",
+    "license": "CC BY 2.0",
+    "url": "https://commons.wikimedia.org/wiki/File:Spaghetti_alle_vongole.jpg"
   }
 }

@@ -53,3 +53,65 @@ describe('booking steps', () => {
     expect(s.step).toBe('cancelled');
   });
 });
+
+import { afterEach, vi } from 'vitest';
+import { createBooking } from '../lucciola/src/booking';
+
+describe('review fixes: errors keep the guest on the right step', () => {
+  it('stays on the times when slots fail to load', () => {
+    let s = reduce(initial(), { type: 'date', date: '2026-11-17', open: true });
+    s = reduce(s, { type: 'failed', error: 'error', from: 'slots' });
+    expect([s.step, s.loading, s.error]).toEqual(['pick', false, 'error']);
+  });
+
+  it('keeps the confirmation when cancel fails', () => {
+    let s = reduce(reduce(ready(), { type: 'send' }), { type: 'booked', made: { code: 'TR-AB12', date: '2026-11-17', time: '19:00', party: 2 } });
+    s = reduce(s, { type: 'failed', error: 'error', from: 'cancel' });
+    expect([s.step, s.error, s.made?.code]).toEqual(['done', 'error', 'TR-AB12']);
+  });
+
+  it('forgets a booking the restaurant no longer has', () => {
+    let s = reduce(reduce(ready(), { type: 'send' }), { type: 'booked', made: { code: 'TR-AB12', date: '2026-11-17', time: '19:00', party: 2 } });
+    s = reduce(s, { type: 'forget' });
+    expect([s.step, s.made]).toEqual(['pick', null]);
+  });
+});
+
+const info = { id: 'lucciola', name: 'L', tz: 'Europe/Rome', phone: '+39', maxParty: 8, hours: [0, 1, 2, 3, 4, 5, 6].map(weekday => ({ weekday, open: '19:00', close: '23:00' })), closed: [] };
+const tick = () => new Promise(r => setTimeout(r, 0));
+function fakeApi(slotsFor: (date: string) => { time: string; available: boolean }[]) {
+  return {
+    slots: vi.fn(async (_r: string, date: string) => ({ slots: slotsFor(date) })),
+    book: vi.fn(), cancel: vi.fn(), info: vi.fn(), menu: vi.fn(),
+  } as any;
+}
+
+describe('review fixes: widget', () => {
+  afterEach(() => { document.body.innerHTML = ''; localStorage.clear(); });
+
+  it('keeps keyboard focus on the guests picker after a change', async () => {
+    const root = document.createElement('div'); document.body.append(root);
+    createBooking(root, fakeApi(() => [{ time: '19:00', available: true }]), info, 'en', '+39');
+    await tick();
+    const sel = root.querySelector<HTMLSelectElement>('#bk-party')!;
+    sel.focus(); sel.value = '3'; sel.dispatchEvent(new Event('change'));
+    await tick();
+    expect(document.activeElement?.id).toBe('bk-party');
+  });
+
+  it('skips to the next day when today has nothing left', async () => {
+    const root = document.createElement('div'); document.body.append(root);
+    let first: string | null = null;
+    createBooking(root, fakeApi(date => { first ??= date; return [{ time: '19:00', available: date !== first }]; }), info, 'en', '+39');
+    for (let i = 0; i < 5; i++) await tick();
+    expect(root.querySelector('.bk-day[aria-pressed="true"]')!.getAttribute('data-date')).not.toBe(first);
+    expect(root.querySelector('.bk-time:not([disabled])')).not.toBeNull();
+  });
+
+  it('offers a new booking from the confirmation', async () => {
+    localStorage.setItem('lucciola-last', JSON.stringify({ code: 'TR-AB12', date: '2099-01-01', time: '19:00', party: 2, phone: '+39 333' }));
+    const root = document.createElement('div'); document.body.append(root);
+    createBooking(root, fakeApi(() => []), info, 'en', '+39');
+    expect(root.querySelector('#bk-new')).not.toBeNull();
+  });
+});

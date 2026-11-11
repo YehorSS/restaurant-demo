@@ -8,7 +8,10 @@ const picks = JSON.parse(readFileSync(`sites/${site}/photos.json`, 'utf8'));
 const dir = `sites/${site}/public/photos`;
 const MAX = 200 * 1024;
 const UA = { 'user-agent': 'restaurant-demo-portfolio/1.0' };
-const strip = s => (s ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+// Commons often links the author as "[2]"; take the name from the link's address instead
+const strip = s => (s ?? '')
+  .replace(/<a [^>]*href="([^"]*)"[^>]*>\s*\[\d+\]\s*<\/a>/g, (_, href) => decodeURIComponent(href.replace(/\/+$/, '').split('/').pop()))
+  .replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 mkdirSync(dir, { recursive: true });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 

@@ -25,7 +25,8 @@ export type Event =
   | { type: 'time'; time: string }
   | { type: 'guest'; field: 'name' | 'phone' | 'comment'; value: string }
   | { type: 'send' }
-  | { type: 'failed'; error: 'taken' | 'invalid' | 'error'; slots?: Slot[] }
+  | { type: 'failed'; error: 'taken' | 'invalid' | 'error'; slots?: Slot[]; from?: 'slots' | 'send' | 'cancel' }
+  | { type: 'forget' }
   | { type: 'booked'; made: Made }
   | { type: 'cancelled' }
   | { type: 'restart' };
@@ -40,12 +41,16 @@ export function reduce(s: State, e: Event): State {
     case 'time': return s.slots?.some(x => x.time === e.time && x.available) ? { ...s, time: e.time, step: 'form', error: null } : s;
     case 'guest': return { ...s, guest: { ...s.guest, [e.field]: e.value } };
     case 'send': return { ...s, step: 'sending', error: null };
-    case 'failed': return e.error === 'taken'
+    case 'failed':
+      if (e.from === 'slots') return { ...s, step: 'pick', loading: false, error: e.error };
+      if (e.from === 'cancel') return { ...s, error: e.error };
+      return e.error === 'taken'
       ? { ...s, step: 'pick', time: null, slots: e.slots ?? null, loading: !e.slots, error: 'taken' }
       : { ...s, step: 'form', error: e.error };
     case 'booked': return { ...s, step: 'done', made: e.made };
     case 'cancelled': return { ...s, step: 'cancelled' };
     case 'restart': return { ...initial(), guest: s.guest };
+    case 'forget': return { ...initial(), guest: s.guest };
   }
 }
 
@@ -65,14 +70,24 @@ export function createBooking(root: HTMLElement, api: SiteApi, info: Info, lang:
 
   const dispatch = (e: Event) => { s = reduce(s, e); render(); };
 
+  let autoTries = 0; // on first load, walk forward past days with nothing left
   async function loadSlots() {
     if (!s.date || s.party > MAX_PARTY) return;
     const want = { date: s.date, party: s.party };
     try {
       const r = await api.slots(RID, want.date, want.party);
-      if (s.date === want.date && s.party === want.party) dispatch({ type: 'slots', slots: r.slots });
+      if (s.date !== want.date || s.party !== want.party) return;
+      const next = days.slice(days.findIndex(d => d.date === want.date) + 1).find(d => d.open);
+      if (autoTries > 0 && !r.slots.some(x => x.available) && next) {
+        autoTries--;
+        dispatch({ type: 'date', date: next.date, open: true });
+        return loadSlots();
+      }
+      autoTries = 0;
+      dispatch({ type: 'slots', slots: r.slots });
     } catch {
-      dispatch({ type: 'failed', error: 'error' });
+      autoTries = 0;
+      dispatch({ type: 'failed', error: 'error', from: 'slots' });
     }
   }
 
@@ -95,8 +110,10 @@ export function createBooking(root: HTMLElement, api: SiteApi, info: Info, lang:
       await api.cancel(RID, s.made.code, s.guest.phone);
       store(LAST, null);
       dispatch({ type: 'cancelled' });
-    } catch {
-      dispatch({ type: 'failed', error: 'error' });
+    } catch (err) {
+      // the booking is gone already (nightly demo reset or staff cancelled it)
+      if (err instanceof ApiError && err.status === 404) { store(LAST, null); dispatch({ type: 'forget' }); return; }
+      dispatch({ type: 'failed', error: 'error', from: 'cancel' });
     }
   }
 
@@ -121,7 +138,20 @@ export function createBooking(root: HTMLElement, api: SiteApi, info: Info, lang:
       </div>`).join('');
   }
 
+  // re-rendering replaces the buttons, so remember which control had focus and put it back
+  function focusKey(): string | null {
+    const a = document.activeElement as HTMLElement | null;
+    if (!a || !root.contains(a)) return null;
+    return a.id ? `#${a.id}` : a.dataset.date ? `[data-date="${a.dataset.date}"]` : a.dataset.time ? `[data-time="${a.dataset.time}"]` : null;
+  }
+
   function render() {
+    const key = focusKey();
+    paint();
+    if (key) root.querySelector<HTMLElement>(key)?.focus();
+  }
+
+  function paint() {
     if (s.step === 'done' && s.made) {
       const d = dayLabel(s.made.date);
       root.innerHTML = `<div class="bk-done" role="status">
@@ -129,9 +159,11 @@ export function createBooking(root: HTMLElement, api: SiteApi, info: Info, lang:
         <p class="bk-when">${d.wd} ${d.n} ${d.m} · ${s.made.time} · ${s.made.party} ${t(lang, 'book.party').toLowerCase()}</p>
         <p class="bk-code"><span>${t(lang, 'book.code')}</span> <strong>${esc(s.made.code)}</strong></p>
         ${s.error === 'error' ? `<p class="bk-error">${t(lang, 'book.error')} ${tel}</p>` : ''}
-        <button type="button" class="btn ghost" id="bk-cancel">${t(lang, 'book.cancel')}</button>
+        <div class="bk-actions"><button type="button" class="btn ghost" id="bk-cancel">${t(lang, 'book.cancel')}</button>
+        <button type="button" class="btn" id="bk-new">${t(lang, 'book.again')}</button></div>
       </div>`;
       root.querySelector('#bk-cancel')!.addEventListener('click', cancel);
+      root.querySelector('#bk-new')!.addEventListener('click', () => { dispatch({ type: 'forget' }); pickFirst(); });
       return;
     }
     if (s.step === 'cancelled') {
@@ -178,9 +210,16 @@ export function createBooking(root: HTMLElement, api: SiteApi, info: Info, lang:
     root.querySelector('form')?.addEventListener('submit', e => { e.preventDefault(); void send(); });
   }
 
+  // open on the nearest day that still has a free time, so the guest sees options straight away
+  function pickFirst() {
+    const first = days.find(d => d.open);
+    if (s.step !== 'pick' || !first) return;
+    autoTries = 7;
+    dispatch({ type: 'date', date: first.date, open: true });
+    void loadSlots();
+  }
+
   render();
-  // open on the nearest bookable day so the guest sees free times straight away
-  const first = days.find(d => d.open);
-  if (s.step === 'pick' && first) { dispatch({ type: 'date', date: first.date, open: true }); void loadSlots(); }
+  pickFirst();
   return { setLang(l: Lang) { lang = l; render(); } };
 }

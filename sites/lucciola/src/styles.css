@@ -15,7 +15,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.55 var(--f-body); }
 img { max-width: 100%; height: auto; display: block; }
 a { color: var(--cobalt); }
-:focus-visible { outline: 3px solid var(--lemon); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 2px; box-shadow: 0 0 0 6px var(--lemon); }
+.foot :focus-visible, .demo :focus-visible { outline-color: var(--ink); }
 .skip { position: absolute; left: -999px; }
 .skip:focus { left: 16px; top: 8px; z-index: 50; background: var(--paper); padding: 8px; }
 h1, h2, h3 { font-family: var(--f-display); font-weight: 400; color: var(--cobalt); margin: 0; line-height: 1; text-wrap: balance; }
@@ -102,6 +103,7 @@ h1, h2, h3 { font-family: var(--f-display); font-weight: 400; color: var(--cobal
 .bk-form input, .bk-form textarea { font: 17px var(--f-body); padding: 12px 14px; border: 1.5px solid var(--rule); border-radius: 10px; background: var(--paper); color: var(--ink); width: 100%; }
 .bk-form input:focus, .bk-form textarea:focus { border-color: var(--cobalt); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--lemon) 70%, transparent); }
 .bk-trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.bk-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .bk-done { text-align: center; padding: 24px 0; display: grid; gap: 10px; justify-items: center; }
 .bk-big { font: clamp(40px, 6vw, 64px) var(--f-display); color: var(--cobalt); margin: 0; }
 .bk-when { font-size: 19px; margin: 0; }
