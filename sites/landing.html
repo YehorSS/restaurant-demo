@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Restaurant demo — two sites, one booking system</title>
+  <meta name="description" content="Two restaurant websites in different styles on one booking backend with a staff admin.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Oswald:wght@600&family=Manrope:wght@400;600&display=swap">
+  <style>
+    :root { --bg: #f4f2ee; --ink: #16181d; --muted: #5d6270; color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 "Manrope", system-ui, sans-serif; padding: 48px max(16px, 5vw); }
+    h1 { font: 600 clamp(30px, 4vw, 44px)/1.1 "Manrope", sans-serif; margin: 0 0 10px; max-width: 22ch; }
+    p.lead { color: var(--muted); max-width: 60ch; margin: 0 0 36px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; max-width: 1100px; }
+    a.card { display: grid; text-decoration: none; border-radius: 10px; overflow: hidden; min-height: 300px; position: relative; color: inherit; }
+    a.card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    a.card .in { position: relative; z-index: 1; align-self: end; padding: 24px; }
+    .lu { border: 3px solid #1f3fa8; }
+    .lu .in { background: #fbfaf5; }
+    .lu b { font: 52px "Abril Fatface", serif; color: #1f3fa8; display: block; line-height: 1; }
+    a.card.zh { background: #14110f; color: #e9e1d6; }
+    .zh::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 20%, #14110f 90%); }
+    .zh b { font: 600 64px "Oswald", sans-serif; letter-spacing: .1em; display: block; line-height: 1; }
+    a.card span { display: block; margin-top: 8px; font-weight: 600; }
+    a.card:focus-visible { outline: 3px solid #0f766e; outline-offset: 3px; }
+    .admin { margin-top: 32px; }
+    .admin a { color: #0f766e; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Two restaurants, one booking system</h1>
+  <p class="lead">Restaurant websites built in two very different styles on a shared backend: live menu, table booking with no double bookings, and a staff admin. Data resets every night.</p>
+  <div class="cards">
+    <a class="card lu" href="./lucciola/"><img src="./lucciola/photos/primi.webp" alt=""><div class="in"><b>Lucciola</b><span>Trattoria in Ancona · Italian / English</span></div></a>
+    <a class="card zh" href="./zhar/"><img src="./zhar/photos/hero.webp" alt=""><div class="in"><b>ЖАР</b><span>Live-fire kitchen in Kyiv · Ukrainian / English</span></div></a>
+  </div>
+  <p class="admin">Staff admin for both: <a href="https://restaurant-demo.yehorss.workers.dev/admin/">restaurant-demo.yehorss.workers.dev/admin</a> (demo / demo) · <a href="https://github.com/YehorSS/restaurant-demo">source code</a></p>
+</body>
+</html>

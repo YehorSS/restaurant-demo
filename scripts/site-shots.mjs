@@ -4,7 +4,10 @@ import { chromium } from '@playwright/test';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 
-const SITES = [{ id: 'lucciola', port: 5173, langs: ['it', 'en'], key: 'lucciola-lang' }];
+const SITES = [
+  { id: 'lucciola', port: 5173, langs: ['it', 'en'], key: 'lucciola-lang', ready: '.course, .menu-error' },
+  { id: 'zhar', port: 5174, langs: ['uk', 'en'], key: 'zhar-lang', ready: '.zh-section, .zh-error' },
+];
 mkdirSync('shots', { recursive: true });
 const problems = [];
 const b = await chromium.launch();
@@ -15,13 +18,13 @@ for (const s of SITES) {
     const p = await b.newPage({ viewport: { width: w, height: h } });
     await p.addInitScript(([k, l]) => localStorage.setItem(k, l), [s.key, lang]);
     await p.goto(`http://localhost:${s.port}/restaurant-demo/${s.id}/`);
-    await p.waitForSelector('.course, .menu-error', { timeout: 15000 });
+    await p.waitForSelector(s.ready, { timeout: 15000 });
     await p.evaluate(() => document.fonts.ready);
     await p.screenshot({ path: `shots/${s.id}-${w}-${lang}.png`, fullPage: true });
     const bad = await p.evaluate(() => {
       const out = [];
       if (document.documentElement.scrollWidth > innerWidth) out.push(`page ${document.documentElement.scrollWidth}px wide`);
-      document.querySelectorAll('h1, h2, h3, .name, .bk-day').forEach(el => { if (el.scrollWidth > el.clientWidth + 1) out.push(`"${el.textContent.trim().slice(0, 30)}" overflows`); });
+      document.querySelectorAll('h1, h2, h3, h4, .name, .bk-day').forEach(el => { if (el.scrollWidth > el.clientWidth + 1) out.push(`"${el.textContent.trim().slice(0, 30)}" overflows`); });
       return out;
     });
     bad.forEach(x => problems.push(`${s.id} ${w} ${lang}: ${x}`));
