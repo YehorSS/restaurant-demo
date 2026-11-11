@@ -4,4 +4,7 @@ declare namespace Cloudflare {
     OWNER_PASSWORD: string;
     TEST_MIGRATIONS: import('cloudflare:test').D1Migration[];
   }
+  interface Exports {
+    default: Fetcher;
+  }
 }
