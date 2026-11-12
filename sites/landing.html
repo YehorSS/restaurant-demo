@@ -11,6 +11,8 @@
   <style>
     :root { --bg: #f4f2ee; --ink: #16181d; --muted: #5d6270; color-scheme: light; }
     * { box-sizing: border-box; }
+    html { scrollbar-width: none; }
+    html::-webkit-scrollbar { display: none; }
     body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 "Manrope", system-ui, sans-serif; padding: 48px max(16px, 5vw); }
     h1 { font: 600 clamp(30px, 4vw, 44px)/1.1 "Manrope", sans-serif; margin: 0 0 10px; max-width: 22ch; }
     p.lead { color: var(--muted); max-width: 60ch; margin: 0 0 36px; }

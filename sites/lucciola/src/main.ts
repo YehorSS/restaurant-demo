@@ -1,4 +1,5 @@
 import './styles.css';
+import { mountScrollbar } from '../../../shared/scrollbar';
 import { detectLang, readStored, siteApi, store, type Info } from '../../../shared/site';
 import { DICT, t, type Key, type Lang } from './i18n';
 import { renderMenu, renderMenuError } from './menu';
@@ -52,6 +53,7 @@ document.getElementById('lang')!.addEventListener('click', () => {
   booking?.setLang(lang);
 });
 
+mountScrollbar();
 applyLang();
 void loadMenu();
 void loadCredits();

@@ -131,3 +131,11 @@ h1, h2, h3 { font-family: var(--f-display); font-weight: 400; color: var(--cobal
 .credits ul { padding-left: 18px; }
 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* the site's own scrollbar (the browser's is hidden) */
+html.own-scroll { scrollbar-width: none; }
+html.own-scroll::-webkit-scrollbar { display: none; }
+.sb-rail { position: fixed; top: 10px; bottom: 10px; right: max(2px, env(safe-area-inset-right, 0px)); width: 16px; z-index: 70; cursor: pointer; touch-action: none; }
+.sb-thumb { position: absolute; top: 0; right: 5px; width: 4px; border-radius: 4px; background: var(--cobalt); opacity: .55; transition: width .2s, right .2s, opacity .2s, background-color .2s; }
+.sb-rail:hover .sb-thumb, .sb-rail.drag .sb-thumb { width: 8px; right: 3px; opacity: 1; background: var(--cobalt); }
+@media (pointer: coarse) { .sb-rail { display: none; } }

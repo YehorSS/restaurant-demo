@@ -1,4 +1,5 @@
 import './styles.css';
+import { mountScrollbar } from '../../../shared/scrollbar';
 import { detectLang, readStored, siteApi, store, type Info } from '../../../shared/site';
 import { t, type Key, type Lang } from './i18n';
 import { renderMenu, renderMenuError } from './menu';
@@ -125,6 +126,7 @@ document.getElementById('lang')!.addEventListener('click', () => {
 // a tap before the restaurant info arrives is remembered and opens the panel as soon as it can
 document.querySelectorAll('[data-open-booking]').forEach(b => b.addEventListener('click', () => { if (panel) panel.open(); else wantPanel = true; }));
 
+mountScrollbar();
 applyLang();
 void loadMenu();
 void loadCredits();
